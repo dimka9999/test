@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API подсказок по адресам</title>
+
+    <!--Подключаем библиотеку jquery-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <form>        
+		Адрес:
+        <input id="address" type="text" name="address" list="addresslist" placeholder="Введите адрес" size="100" autocomplete="off" style="width: auto"> 
+        <datalist id="addresslist">            
+        </datalist>
+    </form>
+
+    <script>
+	
+		var getAdressList = (query) => {
+		
+			var url = "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address";
+			var token = "bedaae75e05c747903aad5ac658eada6ffb3e8ed";
+			
+			var options = {
+				method: "POST",
+				mode: "cors",
+				headers: {
+					"Content-Type": "application/json",
+					"Accept": "application/json",
+					"Authorization": "Token " + token
+				},
+				body: JSON.stringify({ query: query })
+			}
+
+			fetch(url, options)
+				.then(response => response.text())
+				.then(result => {
+					var data = JSON.parse(result);
+					console.log(data);
+					
+					// формируем новый список подсказок
+					$("#addresslist").find("option").remove();
+					for(var i in data["suggestions"]){ 							
+						$("#addresslist").append(`<option value="${data["suggestions"][i].value}">`);
+					}	
+					
+				})
+				.catch(error => console.log("error", error));		
+		
+		}
+		
+		$(document).on('input', '[name="address"]', function() {
+			getAdressList($(this).val());			
+		});		
+		
+    </script>
+
+</body>
+
+</html>
